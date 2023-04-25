@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { validationResult } from "express-validator";
 
 import { registerValidation } from "./validations/auth.js";
+import checkAuth from "./utils/checkAuth.js";
 
 import UserModel from './models/User.js';
 
@@ -16,6 +17,27 @@ mongoose
 const app = express(); // создали express приложение
 
 app.use(express.json()); // указываем чтение json формата
+
+// получение информации о профиле
+app.get('/auth/me', checkAuth, async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId);
+
+        if (!user) {
+            res.status(404).json({
+                message: 'Пользователь не найден'
+            })
+        }
+
+        const {passwordHash, ...userData} = user._doc;
+    
+        res.json(userData);
+    } catch (err) {
+        res.status(500).json({
+            message: 'Нет доступа'
+        })
+    }
+})
 
 // авторизация
 app.post('/auth/login', async (req, res) => {
@@ -61,6 +83,7 @@ app.post('/auth/login', async (req, res) => {
     }
 })
 
+// регистрация
 // путь по которому придёт запрос, проверка, выполнение действий
 app.post('/auth/register', registerValidation, async (req, res) => {
     try {
