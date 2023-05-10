@@ -24,7 +24,12 @@ app.post('/auth/login', loginValidation, UserController.login);
 // путь по которому придёт запрос, проверка, выполнение действий
 app.post('/auth/register', registerValidation, UserController.register);
 
+app.get('/posts', PostController.getAll);
+app.get('/posts/:id', PostController.getOne);
 app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+app.delete('/posts/:id', checkAuth, PostController.remove);
+app.patch('/posts/:id', PostController.update);
+
 
 app.listen(4444, (err) => {
     if (err) {
